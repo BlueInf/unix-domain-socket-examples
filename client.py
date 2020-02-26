@@ -5,17 +5,11 @@ import os, os.path
 # Create a UDS socket
 sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM,0)
 
-
-# if os.path.isfile("tpf_unix.sock.client"):
-#     print("Yass")
-
 os.unlink("tpf_unix_sock.client")
 sock.bind("tpf_unix_sock.client")
 
 
 # Connect the socket to the port where the server is listening
-
-
 server_address = 'tpf_unix_sock.server'
 print >>sys.stderr, 'connecting to %s' % server_address
 try:
@@ -23,3 +17,23 @@ try:
 except socket.error, msg:
     print >>sys.stderr, msg
     sys.exit(1)
+
+try:
+    
+    # Send data
+    message = 'This is the message.  It will be repeated.'
+    print >>sys.stderr, 'sending "%s"' % message
+    sock.sendall(message)
+
+    amount_received = 0
+    amount_expected = 17
+    
+    while amount_received < amount_expected:
+        data = sock.recv(256)
+        amount_received += len(data)
+        print>>sys.stderr, 'received "%d"' %amount_received
+        print >>sys.stderr, 'received "%s"' % data
+
+finally:
+    print >>sys.stderr, 'closing socket'
+    sock.close()
